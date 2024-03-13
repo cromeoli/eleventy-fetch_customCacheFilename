@@ -60,3 +60,35 @@ test("Cache path should handle slashes without creating directories, issue #14",
 
   t.is(cachePath, "/tmp/.cache/eleventy-fetch-135797dbf5ab1187e5003c49162602");
 });
+
+test("Set a custom hash name instead of a hash", async t => {
+  let asset = new AssetCache("myCache", "/tmp/.cache", {
+    customHashName: "humanReadable"
+  });
+
+  let cachePath = normalizePath(asset.cachePath);
+  let jsonCachePath = normalizePath(asset.getCachedContentsPath("json"));
+
+  await asset.save({data: "test"}, "json");
+
+  t.truthy(fs.existsSync(jsonCachePath));
+  t.is(path.basename(jsonCachePath), "eleventy-fetch-humanReadable.json");
+
+  fs.unlinkSync(cachePath);
+  fs.unlinkSync(jsonCachePath);
+});
+
+test("Generate a hash name when customHashName is not provided", async t => {
+  let asset = new AssetCache("myCache", "/tmp/.cache");
+
+  let cachePath = normalizePath(asset.cachePath);
+  let jsonCachePath = normalizePath(asset.getCachedContentsPath("json"));
+
+  await asset.save({data: "test"}, "json");
+
+  t.truthy(fs.existsSync(jsonCachePath));
+  t.is(path.basename(jsonCachePath), `eleventy-fetch-${asset.hash}.json`);
+
+  fs.unlinkSync(cachePath);
+  fs.unlinkSync(jsonCachePath);
+});
