@@ -9,7 +9,8 @@ const debug = require("debug")("EleventyCacheAssets");
 class AssetCache {
 	constructor(uniqueKey, cacheDirectory, options = {}) {
 		this.uniqueKey = uniqueKey;
-		this.hash = AssetCache.getHash(uniqueKey, options.hashLength);
+		this.hashMethod = options.customHashName || AssetCache.getHash(uniqueKey, options.hashLength);
+		this.hash = this.hashMethod;
 		this.cacheDirectory = cacheDirectory || ".cache";
 		this.defaultDuration = "1d";
 		this.options = options;
